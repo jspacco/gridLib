@@ -1,0 +1,14 @@
+<project name="gridUtilities" default="jar">
+	<property name="dist" value="dist"/>
+
+	<target name="dist">
+		<mkdir dir="${dist}"/>
+	</target>
+	
+	<target name="jar" depends="dist">
+		<jar destfile="${dist}/grids.jar" update="true">
+			<fileset dir="bin" includes="gridLib/**/*class"/>
+		</jar>
+	</target>
+
+</project>
