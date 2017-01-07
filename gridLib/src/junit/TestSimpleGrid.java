@@ -1,10 +1,12 @@
-package gridLib;
+package junit;
 
 import static org.junit.Assert.*;
 
 import java.awt.Color;
 
 import org.junit.Test;
+
+import gridLib.SimpleGrid;
 
 public class TestSimpleGrid
 {
@@ -27,10 +29,15 @@ public class TestSimpleGrid
         g.setColor(0,0,Color.BLUE);
         g.setSquareSize(50);
     }
-    public static void main(String[] args) {
-        SimpleGrid g=new SimpleGrid(10, 20);
+    @Test
+    public void test12by24() {
+        SimpleGrid g=new SimpleGrid(12, 24);
         g.setColor(0,0,Color.BLUE);
-        g.setSquareSize(50);
+    }
+    public static void main(String[] args) {
+        TestSimpleGrid g=new TestSimpleGrid();
+        //g.test12by24();
+        g.test2();
     }
 
 }

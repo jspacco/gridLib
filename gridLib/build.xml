@@ -7,7 +7,9 @@
 	
 	<target name="jar" depends="dist">
 		<jar destfile="${dist}/grids.jar" update="true">
-			<fileset dir="bin" includes="gridLib/**/*class"/>
+			<fileset dir="bin" includes="**/*class">
+			    <exclude name="**/junit/*"/>
+			</fileset>
 		</jar>
 	</target>
 

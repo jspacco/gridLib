@@ -4,6 +4,7 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.Frame;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.event.ActionEvent;
@@ -60,11 +61,13 @@ public class SimpleGrid extends JFrame
         }
         if (!visible) {
             // Don't create the canvas or make the GUI visible
-            // this is useful for testing things out
+            // This is useful for testing with JUnit
             return;
         }
+        final JFrame outerFrame=this;
         createMenus();
         canvas=new JPanel() {
+            private JFrame frame=outerFrame;
             private static final long serialVersionUID = 1L;
 
             @Override
@@ -73,7 +76,6 @@ public class SimpleGrid extends JFrame
                 
                 int offset=MARGIN_SIZE;
                 
-
                 for(int r = 0; r < numRows; r++) {
                     for(int c = 0; c < numCols; c++) {
                         // first color the rectangle white
@@ -102,13 +104,15 @@ public class SimpleGrid extends JFrame
                                 offset+(r+1)*squareSize);
                     }
                 }
-                g.setColor(Color.BLACK);
-                
+                //frame.setPreferredSize(new Dimension(numRows*squareSize + MARGIN_SIZE, numCols*squareSize + MARGIN_SIZE));
+                setPreferredSize(new Dimension(numCols*squareSize + 2*MARGIN_SIZE, numRows*squareSize + 2*MARGIN_SIZE));
+                frame.pack();
             }
+            
         };
 
-        this.setSize(numCols * squareSize + 2*MARGIN_SIZE, numRows * squareSize + 2*MARGIN_SIZE);
-        this.setPreferredSize(new Dimension(numCols * squareSize + 2*MARGIN_SIZE, numRows * squareSize + 2*MARGIN_SIZE));
+        //this.setSize(numCols * squareSize + 2*MARGIN_SIZE, numRows * squareSize + 2*MARGIN_SIZE);
+        //this.setPreferredSize(new Dimension(numCols * squareSize + 2*MARGIN_SIZE, numRows * squareSize + 2*MARGIN_SIZE));
 
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         //setSize((numCols + DOUBLE_MARGIN_SIZE) * squareSize, (numRows + DOUBLE_MARGIN_SIZE) * squareSize);
@@ -129,6 +133,12 @@ public class SimpleGrid extends JFrame
             }
         });
     }
+    
+    /**
+     * FIXME this doesn't resize properly
+     * 
+     * @param squareSize
+     */
     public void setSquareSize(int squareSize) {
         this.squareSize=squareSize;
         //this.setPreferredSize(new Dimension(numCols * squareSize + 2*MARGIN_SIZE, numRows * squareSize + 2*MARGIN_SIZE));
