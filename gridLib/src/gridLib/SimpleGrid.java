@@ -4,7 +4,6 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
-import java.awt.Frame;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.event.ActionEvent;
@@ -29,6 +28,10 @@ public class SimpleGrid extends JFrame
     private int numRows;
     private int numCols;
     private Color[][] cells;
+    protected boolean error=false;
+    protected Color errorColor;
+    protected int errorRow;
+    protected int errorCol;
     protected final int MARGIN_SIZE = 5;
     protected final int DOUBLE_MARGIN_SIZE=MARGIN_SIZE*2;
     protected int squareSize=25;
@@ -66,6 +69,9 @@ public class SimpleGrid extends JFrame
         }
         final JFrame outerFrame=this;
         createMenus();
+        final int numRows2=this.numRows;
+        final int numCols2=this.numCols;
+        
         canvas=new JPanel() {
             private JFrame frame=outerFrame;
             private static final long serialVersionUID = 1L;
@@ -76,11 +82,20 @@ public class SimpleGrid extends JFrame
                 
                 int offset=MARGIN_SIZE;
                 
-                for(int r = 0; r < numRows; r++) {
-                    for(int c = 0; c < numCols; c++) {
+                // has someone tried to draw out of bounds?
+                if (error) {
+                    g.setColor(errorColor);
+                    g.fillRect((errorCol+1) * squareSize + offset,
+                            (errorRow+1) * squareSize + offset,
+                            squareSize,
+                            squareSize);
+                }
+                
+                for(int r = 1; r < numRows2+1; r++) {
+                    for(int c = 1; c < numCols2+1; c++) {
                         // first color the rectangle white
                         //g.setColor(Color.WHITE);
-                        g.setColor(cells[r][c]);
+                        g.setColor(cells[r-1][c-1]);
                         g.fillRect(c * squareSize + offset, 
                                 r * squareSize + offset, 
                                 squareSize, 
@@ -105,7 +120,7 @@ public class SimpleGrid extends JFrame
                     }
                 }
                 //frame.setPreferredSize(new Dimension(numRows*squareSize + MARGIN_SIZE, numCols*squareSize + MARGIN_SIZE));
-                setPreferredSize(new Dimension(numCols*squareSize + 2*MARGIN_SIZE, numRows*squareSize + 2*MARGIN_SIZE));
+                setPreferredSize(new Dimension((numCols2+2)*squareSize + 2*MARGIN_SIZE, (numRows2+2)*squareSize + 2*MARGIN_SIZE));
                 frame.pack();
             }
             
@@ -129,7 +144,7 @@ public class SimpleGrid extends JFrame
         
         addWindowListener(new WindowAdapter() {
             @Override public void windowClosing(WindowEvent e) {
-                dispose();
+                //dispose();
             }
         });
     }
@@ -156,20 +171,62 @@ public class SimpleGrid extends JFrame
         return cells[row][col];
     }
     public void setColor(int row, int col, Color color) {
-        boundsCheck(row, col);
+        boundsCheck(row, col, color);
         cells[row][col]=color;
         repaint();
     }
+    protected void boundsCheck(int row, int col, Color color) {
+        errorColor=color;
+        boundsCheck(row, col);
+    }
     protected void boundsCheck(int row, int col)
     {
-        if(row < 0 || row >= getNumRows())
-            throw new IndexOutOfBoundsException(
-                    (new StringBuilder("row ")).append(row).append(" is out of bounds (min row value is 0, max row value is ").
-                    append(getNumRows()-1).append(")").toString());
-        if(col < 0 || col >= getNumCols())
-            throw new IndexOutOfBoundsException(
-                    (new StringBuilder("col ")).append(col).append(" is out of bounds (min col value is 0, max col value is ").
-                    append(getNumCols()-1).append(")").toString());
+        if (row >= 0 && row < getNumRows() && col >= 0 && col < getNumCols()) {
+            // bounds are OK!
+            return;
+        }
+        error=true;
+        
+        if (row < 0 && col < 0) {
+            // top left
+            errorRow=-1;
+            errorCol=-1;
+        } else if (row < 0 && col >= getNumCols()) {
+            // top right
+            errorRow=-1;
+            errorCol=getNumCols();
+        } else if (row < 0) {
+            // row out of bounds, col is OK
+            errorRow=-1;
+            errorCol=col;
+        } else if (row >= getNumRows() && col < 0) {
+            // bottom left
+            errorRow=getNumRows();
+            errorCol=-1;
+        } else if (row >= getNumRows() && col >= getNumCols()) {
+            // bottom right
+            errorRow=getNumRows();
+            errorCol=getNumCols();
+        } else if (row >= getNumRows()) {
+            // row out of bounds, col is OK
+            errorRow=getNumRows();
+            errorCol=col;
+        } else if (col < 0) {
+            // row is OK at this point
+            // left column
+            errorRow=row;
+            errorCol=-1;
+        } else if (col >= getNumCols()) { 
+            // right column
+            errorRow=row;
+            errorCol=getNumCols();
+        } 
+        // Repaint to draw the current grid with the error indicated
+        repaint();
+        String msg=String.format("(%d, %d) is out of bounds!\n", row, col)+
+                String.format("Row must be between %d and %d (you had %d)\n", 0, getNumRows()-1, row)+
+                String.format("Col must be between %d and %d (you had %d)", 0, getNumCols()-1, col);
+        throw new IndexOutOfBoundsException(msg);
     }
     private static BufferedImage getScreenShot(Component component) {
         BufferedImage image = new BufferedImage(
