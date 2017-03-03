@@ -6,8 +6,11 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.image.BufferedImage;
@@ -32,6 +35,7 @@ public class SimpleGrid extends JFrame
     protected Color errorColor;
     protected int errorRow;
     protected int errorCol;
+    protected String errorMessage;
     protected final int MARGIN_SIZE = 5;
     protected final int DOUBLE_MARGIN_SIZE=MARGIN_SIZE*2;
     protected int squareSize=25;
@@ -82,8 +86,9 @@ public class SimpleGrid extends JFrame
                 
                 int offset=MARGIN_SIZE;
                 
-                // has someone tried to draw out of bounds?
+                // has someone tried to set a square that is out of bounds?
                 if (error) {
+                    // TODO: add an arrow if the square is way out of bounds
                     g.setColor(errorColor);
                     g.fillRect((errorCol+1) * squareSize + offset,
                             (errorRow+1) * squareSize + offset,
@@ -125,6 +130,26 @@ public class SimpleGrid extends JFrame
             }
             
         };
+        
+        canvas.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                Point p=e.getPoint();
+                // figure out the grid square
+                int col = (p.x - MARGIN_SIZE) / squareSize - 1;
+                int row = (p.y - MARGIN_SIZE) / squareSize - 1;
+                if (row >= 0 && row < getNumRows() && col >= 0 && col < getNumCols()) {
+                    System.out.printf("row=%d, col=%d\n", row, col);
+                }
+                if (error) {
+                    if ((errorRow==-1 || errorRow==getNumRows()) && errorCol==col) {
+                        System.out.printf(errorMessage+"\n");
+                    } else if ((errorCol==-1 || errorCol==getNumCols()) && errorRow==row) {
+                        System.out.printf(errorMessage+"\n");
+                    }
+                }
+            }
+        });
 
         //this.setSize(numCols * squareSize + 2*MARGIN_SIZE, numRows * squareSize + 2*MARGIN_SIZE);
         //this.setPreferredSize(new Dimension(numCols * squareSize + 2*MARGIN_SIZE, numRows * squareSize + 2*MARGIN_SIZE));
@@ -176,6 +201,9 @@ public class SimpleGrid extends JFrame
         repaint();
     }
     protected void boundsCheck(int row, int col, Color color) {
+        // saves the color every time for a potential error color
+        // but the color only gets used if boundsCheck() detects an error
+        // and sets the error variable to true!
         errorColor=color;
         boundsCheck(row, col);
     }
@@ -223,10 +251,10 @@ public class SimpleGrid extends JFrame
         } 
         // Repaint to draw the current grid with the error indicated
         repaint();
-        String msg=String.format("(%d, %d) is out of bounds!\n", row, col)+
+        errorMessage=String.format("(%d, %d) is out of bounds!\n", row, col)+
                 String.format("Row must be between %d and %d (you had %d)\n", 0, getNumRows()-1, row)+
                 String.format("Col must be between %d and %d (you had %d)", 0, getNumCols()-1, col);
-        throw new IndexOutOfBoundsException(msg);
+        throw new IndexOutOfBoundsException(errorMessage);
     }
     private static BufferedImage getScreenShot(Component component) {
         BufferedImage image = new BufferedImage(
