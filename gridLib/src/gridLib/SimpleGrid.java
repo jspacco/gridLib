@@ -163,7 +163,6 @@ public class SimpleGrid extends JFrame
                 int row = (p.y - MARGIN_SIZE) / squareSize - 1;
                 if (row >= 0 && row < getNumRows() && col >= 0 && col < getNumCols()) {
                     String msg = String.format("row=%d, col=%d\n", row, col);
-                    canvas.setToolTipText(msg);
                     tooltip(msg, e);
                     System.out.printf(msg);
                 } else if (error) {
@@ -173,8 +172,6 @@ public class SimpleGrid extends JFrame
                         System.out.printf(errorMessage+"\n");
                     }
                     String msg = "<html><p>"+errorMessage.replaceAll("\n","</p><p>")+"</p></html>";
-                    //tooltip(errorMessage, e);
-                    System.out.println(msg);
                     tooltip(msg, e);
                 }
             }
@@ -372,6 +369,8 @@ public class SimpleGrid extends JFrame
                 return null;
             }
         });
+        
+        menu.addSeparator();
 
         // quit option
         JMenuItem quit=new JMenuItem("Quit");
