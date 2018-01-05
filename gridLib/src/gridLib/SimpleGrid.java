@@ -3,6 +3,7 @@ package gridLib;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -14,9 +15,11 @@ import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.image.BufferedImage;
+import java.io.File;
 import java.util.Arrays;
 
 import javax.imageio.ImageIO;
+import javax.swing.JComponent;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JMenu;
@@ -24,6 +27,10 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JTextField;
+import javax.swing.JToolTip;
+import javax.swing.SwingUtilities;
+import javax.swing.ToolTipManager;
 
 public class SimpleGrid extends JFrame
 {
@@ -131,7 +138,23 @@ public class SimpleGrid extends JFrame
             
         };
         
+        
         canvas.addMouseListener(new MouseAdapter() {
+            private void tooltip(String msg, MouseEvent e) {
+                // https://stackoverflow.com/questions/7353021/how-to-show-a-tooltip-on-a-mouse-click
+                JComponent component = (JComponent)e.getSource();
+                component.setToolTipText(msg);
+                MouseEvent phantom = new MouseEvent(
+                    component,
+                    MouseEvent.MOUSE_MOVED,
+                    System.currentTimeMillis(),
+                    0,
+                    e.getX(),
+                    e.getY(),
+                    0,
+                    false);
+                ToolTipManager.sharedInstance().mouseMoved(phantom);
+            }
             @Override
             public void mouseClicked(MouseEvent e) {
                 Point p=e.getPoint();
@@ -139,16 +162,23 @@ public class SimpleGrid extends JFrame
                 int col = (p.x - MARGIN_SIZE) / squareSize - 1;
                 int row = (p.y - MARGIN_SIZE) / squareSize - 1;
                 if (row >= 0 && row < getNumRows() && col >= 0 && col < getNumCols()) {
-                    System.out.printf("row=%d, col=%d\n", row, col);
-                }
-                if (error) {
+                    String msg = String.format("row=%d, col=%d\n", row, col);
+                    canvas.setToolTipText(msg);
+                    tooltip(msg, e);
+                    System.out.printf(msg);
+                } else if (error) {
                     if ((errorRow==-1 || errorRow==getNumRows()) && errorCol==col) {
                         System.out.printf(errorMessage+"\n");
                     } else if ((errorCol==-1 || errorCol==getNumCols()) && errorRow==row) {
                         System.out.printf(errorMessage+"\n");
                     }
+                    String msg = "<html><p>"+errorMessage.replaceAll("\n","</p><p>")+"</p></html>";
+                    //tooltip(errorMessage, e);
+                    System.out.println(msg);
+                    tooltip(msg, e);
                 }
             }
+            
         });
 
         //this.setSize(numCols * squareSize + 2*MARGIN_SIZE, numRows * squareSize + 2*MARGIN_SIZE);
@@ -278,13 +308,36 @@ public class SimpleGrid extends JFrame
         menu.add(save);
         final JFrame frame=this;
         save.addActionListener(new ActionListener() {
+            
+            private File currentDir=null;
+            
             @Override
             public void actionPerformed(ActionEvent e) {
                 System.out.println("Save");
                 BufferedImage img = getScreenShot(frame.getContentPane());
 
                 //Create a file chooser
-                final JFileChooser fc = new JFileChooser();
+                final JFileChooser fc = new JFileChooser(currentDir);
+                fc.setSelectedFile(new File("Untitled.png"));
+                
+                // https://stackoverflow.com/questions/17103171/making-a-jfilechooser-select-the-text-of-the-file-name-but-not-the-extension
+                final JTextField textField = getTexField(fc);
+                if (textField != null) {
+                    SwingUtilities.invokeLater(new Runnable() {
+                        @Override
+                        public void run() {
+                            String text = textField.getText();
+                            if (text != null) {
+                                int index = text.lastIndexOf('.');
+                                if (index > -1) {
+                                    textField.setSelectionStart(0);
+                                    textField.setSelectionEnd(index);
+                                }
+                            }
+                        }
+                    });
+                }
+                
                 //In response to a button click:
                 int returnVal = fc.showSaveDialog(frame);
                 if (returnVal == JFileChooser.APPROVE_OPTION) {
@@ -294,6 +347,7 @@ public class SimpleGrid extends JFrame
                                 img,
                                 "png",
                                 fc.getSelectedFile());
+                        currentDir = fc.getSelectedFile().getParentFile();
                     } catch(Exception ex) {
                         JOptionPane.showMessageDialog(frame,
                                 "Unable to save file to "+fc.getSelectedFile().getName(),
@@ -301,6 +355,21 @@ public class SimpleGrid extends JFrame
                                 JOptionPane.ERROR_MESSAGE);
                     }
                 }
+            }
+        
+            private JTextField getTexField(Container container) {
+                for (int i = 0; i < container.getComponentCount(); i++) {
+                    Component child = container.getComponent(i);
+                    if (child instanceof JTextField) {
+                        return (JTextField) child;
+                    } else if (child instanceof Container) {
+                        JTextField field = getTexField((Container) child);
+                        if (field != null) {
+                            return field;
+                        }
+                    }
+                }
+                return null;
             }
         });
 
