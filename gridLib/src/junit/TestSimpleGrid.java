@@ -35,9 +35,11 @@ public class TestSimpleGrid
         g.setColor(0,0,Color.BLUE);
     }
     public static void main(String[] args) {
-        TestSimpleGrid g=new TestSimpleGrid();
+        //TestSimpleGrid g=new TestSimpleGrid();
         //g.test12by24();
-        g.test2();
+        //g.test2();
+        SimpleGrid g=new SimpleGrid(10, 15);
+        g.setColor(-1, 0, Color.BLUE);
     }
 
 }

@@ -63,6 +63,50 @@ public class SimpleGrid extends JFrame
         this(numRows, numCols, true);
     }
     
+    private void drawGrid(Graphics2D g) {
+        int offset=MARGIN_SIZE;
+        
+        // has someone tried to set a square that is out of bounds?
+        if (error) {
+            // TODO: add an arrow if the square is way out of bounds
+            g.setColor(errorColor);
+            g.fillRect((errorCol+1) * squareSize + offset,
+                    (errorRow+1) * squareSize + offset,
+                    squareSize,
+                    squareSize);
+        }
+        
+        for(int r = 1; r < numRows+1; r++) {
+            for(int c = 1; c < numCols+1; c++) {
+                // first color the rectangle white
+                //g.setColor(Color.WHITE);
+                g.setColor(cells[r-1][c-1]);
+                g.fillRect(c * squareSize + offset, 
+                        r * squareSize + offset, 
+                        squareSize, 
+                        squareSize);
+                g.setColor(Color.BLACK);
+                g.drawLine(offset+c*squareSize, 
+                        offset+r*squareSize, 
+                        offset+(c+1)*squareSize, 
+                        offset+r*squareSize);
+                g.drawLine(offset+c*squareSize, 
+                        offset+r*squareSize, 
+                        offset+c*squareSize, 
+                        offset+(r+1)*squareSize);
+                g.drawLine(offset+(c+1)*squareSize, 
+                        offset+r*squareSize, 
+                        offset+(c+1)*squareSize, 
+                        offset+(r+1)*squareSize);
+                g.drawLine(offset+c*squareSize, 
+                        offset+(r+1)*squareSize, 
+                        offset+(c+1)*squareSize, 
+                        offset+(r+1)*squareSize);
+            }
+        }
+        
+    }
+    
     public SimpleGrid(int numRows, int numCols, boolean visible) {
         super("SimpleGrid");
         this.numRows=numRows;
@@ -91,46 +135,8 @@ public class SimpleGrid extends JFrame
             public void paint(Graphics graphics) {
                 Graphics2D g=(Graphics2D)graphics;
                 
-                int offset=MARGIN_SIZE;
+                drawGrid(g);
                 
-                // has someone tried to set a square that is out of bounds?
-                if (error) {
-                    // TODO: add an arrow if the square is way out of bounds
-                    g.setColor(errorColor);
-                    g.fillRect((errorCol+1) * squareSize + offset,
-                            (errorRow+1) * squareSize + offset,
-                            squareSize,
-                            squareSize);
-                }
-                
-                for(int r = 1; r < numRows2+1; r++) {
-                    for(int c = 1; c < numCols2+1; c++) {
-                        // first color the rectangle white
-                        //g.setColor(Color.WHITE);
-                        g.setColor(cells[r-1][c-1]);
-                        g.fillRect(c * squareSize + offset, 
-                                r * squareSize + offset, 
-                                squareSize, 
-                                squareSize);
-                        g.setColor(Color.BLACK);
-                        g.drawLine(offset+c*squareSize, 
-                                offset+r*squareSize, 
-                                offset+(c+1)*squareSize, 
-                                offset+r*squareSize);
-                        g.drawLine(offset+c*squareSize, 
-                                offset+r*squareSize, 
-                                offset+c*squareSize, 
-                                offset+(r+1)*squareSize);
-                        g.drawLine(offset+(c+1)*squareSize, 
-                                offset+r*squareSize, 
-                                offset+(c+1)*squareSize, 
-                                offset+(r+1)*squareSize);
-                        g.drawLine(offset+c*squareSize, 
-                                offset+(r+1)*squareSize, 
-                                offset+(c+1)*squareSize, 
-                                offset+(r+1)*squareSize);
-                    }
-                }
                 //frame.setPreferredSize(new Dimension(numRows*squareSize + MARGIN_SIZE, numCols*squareSize + MARGIN_SIZE));
                 setPreferredSize(new Dimension((numCols2+2)*squareSize + 2*MARGIN_SIZE, (numRows2+2)*squareSize + 2*MARGIN_SIZE));
                 frame.pack();
@@ -291,6 +297,26 @@ public class SimpleGrid extends JFrame
         // call the Component's paint method, using
         // the Graphics object of the image.
         component.paint( image.getGraphics() );
+        return image;
+    }
+    
+    public BufferedImage getScreenShot(){
+        // This is a hack, but I can't always export the image correctly,
+        // especially when running in batch mode.
+        int width = (numCols+2)*squareSize + 2*MARGIN_SIZE;
+        int height = (numRows+2)*squareSize + 2*MARGIN_SIZE;
+        
+        // BGR because we don't have an alpha channel
+        BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_BGR);
+        
+        Graphics2D g = image.createGraphics();
+
+        // First, paint everything white
+        g.setPaint(Color.WHITE);
+        g.fillRect(0, 0, image.getWidth(), image.getHeight());
+        
+        drawGrid(g);
+        
         return image;
     }
     
