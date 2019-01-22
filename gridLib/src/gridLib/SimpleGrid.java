@@ -5,6 +5,7 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Point;
@@ -28,7 +29,6 @@ import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
-import javax.swing.JToolTip;
 import javax.swing.SwingUtilities;
 import javax.swing.ToolTipManager;
 
@@ -38,6 +38,7 @@ public class SimpleGrid extends JFrame
     private int numRows;
     private int numCols;
     private Color[][] cells;
+    protected boolean letterMode=false;
     protected boolean error=false;
     protected Color errorColor;
     protected int errorRow;
@@ -63,6 +64,10 @@ public class SimpleGrid extends JFrame
         this(numRows, numCols, true);
     }
     
+    public void setLetterMode(boolean letterMode) {
+        this.letterMode = letterMode;
+    }
+    
     private void drawGrid(Graphics2D g) {
         int offset=MARGIN_SIZE;
         
@@ -80,12 +85,46 @@ public class SimpleGrid extends JFrame
             for(int c = 1; c < numCols+1; c++) {
                 // first color the rectangle white
                 //g.setColor(Color.WHITE);
-                g.setColor(cells[r-1][c-1]);
-                g.fillRect(c * squareSize + offset, 
-                        r * squareSize + offset, 
-                        squareSize, 
-                        squareSize);
-                g.setColor(Color.BLACK);
+                
+                
+                // Draw letters if desired
+                if (letterMode) {
+                    Font f = new Font("Comic Sans MS", Font.BOLD, squareSize);
+                    g.setFont(f);
+                    //System.out.printf("%d, %d\n", offset+c*squareSize, offset+(r+1)*squareSize);
+                    String s="";
+                    Color col = cells[r-1][c-1]; 
+                    if (col == Color.RED) {
+                        s = "R";
+                    } else if (col == Color.GREEN) {
+                        s = "G";
+                    } else if (col == Color.BLUE) {
+                        s = "B";
+                    } else if (col == Color.BLACK) {
+                        s = "K";
+                    } else if (col == Color.WHITE) {
+                        s = "";
+                    } else if  (col == Color.MAGENTA) {
+                        s = "M";
+                    } else if  (col == Color.YELLOW) {
+                        s = "Y";
+                    } else if  (col == Color.ORANGE) {
+                        s = "O";
+                    } else if  (col == Color.CYAN) {
+                        s = "C";
+                    } else if  (col == Color.PINK) {
+                        s = "P";
+                    }
+                    g.drawString(s, offset+c*squareSize, offset+(r+1)*squareSize);
+                } else {
+                    g.setColor(cells[r-1][c-1]);
+                    g.fillRect(c * squareSize + offset, 
+                            r * squareSize + offset, 
+                            squareSize, 
+                            squareSize);
+                    g.setColor(Color.BLACK);
+                }
+                
                 g.drawLine(offset+c*squareSize, 
                         offset+r*squareSize, 
                         offset+(c+1)*squareSize, 
@@ -329,7 +368,7 @@ public class SimpleGrid extends JFrame
         // save option
         JMenuItem save=new JMenuItem("Save");
         menu.add(save);
-        final JFrame frame=this;
+        final SimpleGrid frame=this;
         save.addActionListener(new ActionListener() {
             
             private File currentDir=null;
@@ -337,7 +376,8 @@ public class SimpleGrid extends JFrame
             @Override
             public void actionPerformed(ActionEvent e) {
                 System.out.println("Save");
-                BufferedImage img = getScreenShot(frame.getContentPane());
+                //BufferedImage img = getScreenShot(frame.getContentPane());
+                BufferedImage img = frame.getScreenShot();
 
                 //Create a file chooser
                 final JFileChooser fc = new JFileChooser(currentDir);
