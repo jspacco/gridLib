@@ -47,7 +47,7 @@ public class SimpleGrid extends JFrame
     protected int errorRow;
     protected int errorCol;
     protected String errorMessage;
-    protected final int MARGIN_SIZE=5;
+    protected final int MARGIN_SIZE = 5;
     protected final int DOUBLE_MARGIN_SIZE=MARGIN_SIZE*2;
     protected int squareSize=25;
     protected JPanel canvas;
@@ -78,8 +78,8 @@ public class SimpleGrid extends JFrame
         if (error) {
             // TODO: add an arrow if the square is way out of bounds
             g.setColor(errorColor);
-            g.fillRect((errorCol + 1) * squareSize + offset,
-                    (errorRow + 1) * squareSize + offset,
+            g.fillRect((errorCol+1) * squareSize + offset,
+                    (errorRow+1) * squareSize + offset,
                     squareSize,
                     squareSize);
         }
@@ -107,21 +107,21 @@ public class SimpleGrid extends JFrame
                         offset+r*squareSize,
                         offset+(c+1)*squareSize,
                         offset+r*squareSize);
-                g.drawLine(offset+c*squareSize,
-                        offset+r*squareSize,
-                        offset+c*squareSize,
+                g.drawLine(offset+c*squareSize, 
+                        offset+r*squareSize, 
+                        offset+c*squareSize, 
                         offset+(r+1)*squareSize);
-                g.drawLine(offset+(c+1)*squareSize,
-                        offset+r*squareSize,
-                        offset+(c+1)*squareSize,
+                g.drawLine(offset+(c+1)*squareSize, 
+                        offset+r*squareSize, 
+                        offset+(c+1)*squareSize, 
                         offset+(r+1)*squareSize);
-                g.drawLine(offset+c*squareSize,
-                        offset+(r+1)*squareSize,
-                        offset+(c+1)*squareSize,
+                g.drawLine(offset+c*squareSize, 
+                        offset+(r+1)*squareSize, 
+                        offset+(c+1)*squareSize, 
                         offset+(r+1)*squareSize);
             }
         }
-
+        
     }
 
     private void loadImage(String imageSrc, int position) {
@@ -164,8 +164,8 @@ public class SimpleGrid extends JFrame
         this.numRows=numRows;
         this.numCols=numCols;
         this.cells=new Color[numRows][numCols];
-        for (int i = 0; i < numRows; i++) {
-            for (int j = 0; j < numCols; j++) {
+        for(int i = 0; i < numRows; i++) {
+            for(int j = 0; j < numCols; j++) {
                 cells[i][j]=Color.WHITE;
             }
         }
@@ -195,14 +195,12 @@ public class SimpleGrid extends JFrame
 
             @Override
             public void paint(Graphics graphics) {
-                Graphics2D g=(Graphics2D) graphics;
+                Graphics2D g=(Graphics2D)graphics;
                 
                 drawGrid(g);
 
-                // frame.setPreferredSize(new Dimension(numRows*squareSize + MARGIN_SIZE,
-                // numCols*squareSize + MARGIN_SIZE));
-                setPreferredSize(new Dimension((numCols2 + 2) * squareSize + 2 * MARGIN_SIZE,
-                        (numRows2 + 2) * squareSize + 2 * MARGIN_SIZE));
+                // frame.setPreferredSize(new Dimension(numRows*squareSize + MARGIN_SIZE, numCols*squareSize + MARGIN_SIZE));
+                setPreferredSize(new Dimension((numCols2 + 2) * squareSize + 2 * MARGIN_SIZE, (numRows2 + 2) * squareSize + 2 * MARGIN_SIZE));
                 frame.pack();
             }
             
@@ -214,17 +212,16 @@ public class SimpleGrid extends JFrame
                 JComponent component = (JComponent)e.getSource();
                 component.setToolTipText(msg);
                 MouseEvent phantom = new MouseEvent(
-                        component,
-                        MouseEvent.MOUSE_MOVED,
-                        System.currentTimeMillis(),
-                        0,
-                        e.getX(),
-                        e.getY(),
-                        0,
-                        false);
+                    component,
+                    MouseEvent.MOUSE_MOVED,
+                    System.currentTimeMillis(),
+                    0,
+                    e.getX(),
+                    e.getY(),
+                    0,
+                    false);
                 ToolTipManager.sharedInstance().mouseMoved(phantom);
             }
-
             @Override
             public void mouseClicked(MouseEvent e) {
                 Point p=e.getPoint();
@@ -241,32 +238,32 @@ public class SimpleGrid extends JFrame
                     } else if ((errorCol==-1 || errorCol==getNumCols()) && errorRow==row) {
                         System.out.printf(errorMessage+"\n");
                     }
-                    String msg = "<html><p>"+errorMessage.replaceAll("\n", "</p><p>") + "</p></html>";
+                    String msg = "<html><p>"+errorMessage.replaceAll("\n","</p><p>")+"</p></html>";
                     tooltip(msg, e);
                 }
             }
 
         });
 
-        // this.setSize(numCols * squareSize + 2*MARGIN_SIZE, numRows * squareSize + 2*MARGIN_SIZE);
-        // this.setPreferredSize(new Dimension(numCols * squareSize + 2*MARGIN_SIZE, numRows * squareSize + 2*MARGIN_SIZE));
+        //this.setSize(numCols * squareSize + 2*MARGIN_SIZE, numRows * squareSize + 2*MARGIN_SIZE);
+        //this.setPreferredSize(new Dimension(numCols * squareSize + 2*MARGIN_SIZE, numRows * squareSize + 2*MARGIN_SIZE));
 
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        // setSize((numCols + DOUBLE_MARGIN_SIZE) * squareSize, (numRows + DOUBLE_MARGIN_SIZE) * squareSize);
-
-        // setContentPane(canvas);
+        //setSize((numCols + DOUBLE_MARGIN_SIZE) * squareSize, (numRows + DOUBLE_MARGIN_SIZE) * squareSize);
+        
+        //setContentPane(canvas);
         this.getContentPane().add(canvas, BorderLayout.CENTER);
         this.setResizable(true);
         
         this.pack();
         
-        this.setLocation(100, 100);
+        this.setLocation(100,100);
         this.setVisible(true);
         this.toFront();
         
         addWindowListener(new WindowAdapter() {
             @Override public void windowClosing(WindowEvent e) {
-                // dispose();
+                //dispose();
             }
         });
     }
@@ -277,36 +274,31 @@ public class SimpleGrid extends JFrame
      * @param squareSize
      */
     public void setSquareSize(int squareSize) {
-        this.squareSize = squareSize;
-        // this.setPreferredSize(new Dimension(numCols * squareSize + 2*MARGIN_SIZE, numRows * squareSize + 2*MARGIN_SIZE));
-        // this.pack();
+        this.squareSize=squareSize;
+        //this.setPreferredSize(new Dimension(numCols * squareSize + 2*MARGIN_SIZE, numRows * squareSize + 2*MARGIN_SIZE));
+        //this.pack();
         repaint();
     }
-
     public int getNumRows() {
         return numRows;
     }
-
     public int getNumCols() {
         return numCols;
     }
-
     public Color getColor(int row, int col) {
         boundsCheck(row, col);
         return cells[row][col];
     }
-
     public void setColor(int row, int col, Color color) {
         boundsCheck(row, col, color);
         cells[row][col]=color;
         repaint();
     }
-
     protected void boundsCheck(int row, int col, Color color) {
         // saves the color every time for a potential error color
         // but the color only gets used if boundsCheck() detects an error
         // and sets the error variable to true!
-        errorColor = color;
+        errorColor=color;
         boundsCheck(row, col);
     }
     protected void boundsCheck(int row, int col)
