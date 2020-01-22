@@ -198,13 +198,14 @@ public class SimpleGrid extends JFrame
                 Graphics2D g=(Graphics2D)graphics;
                 
                 drawGrid(g);
-
-                // frame.setPreferredSize(new Dimension(numRows*squareSize + MARGIN_SIZE, numCols*squareSize + MARGIN_SIZE));
-                setPreferredSize(new Dimension((numCols2 + 2) * squareSize + 2 * MARGIN_SIZE, (numRows2 + 2) * squareSize + 2 * MARGIN_SIZE));
+                
+                //frame.setPreferredSize(new Dimension(numRows*squareSize + MARGIN_SIZE, numCols*squareSize + MARGIN_SIZE));
+                setPreferredSize(new Dimension((numCols2+2)*squareSize + 2*MARGIN_SIZE, (numRows2+2)*squareSize + 2*MARGIN_SIZE));
                 frame.pack();
             }
             
         };
+
 
         canvas.addMouseListener(new MouseAdapter() {
             private void tooltip(String msg, MouseEvent e) {
@@ -242,7 +243,7 @@ public class SimpleGrid extends JFrame
                     tooltip(msg, e);
                 }
             }
-
+            
         });
 
         //this.setSize(numCols * squareSize + 2*MARGIN_SIZE, numRows * squareSize + 2*MARGIN_SIZE);
