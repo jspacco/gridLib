@@ -205,8 +205,8 @@ public class SimpleGrid extends JFrame
             }
             
         };
-
-
+        
+        
         canvas.addMouseListener(new MouseAdapter() {
             private void tooltip(String msg, MouseEvent e) {
                 // https://stackoverflow.com/questions/7353021/how-to-show-a-tooltip-on-a-mouse-click
