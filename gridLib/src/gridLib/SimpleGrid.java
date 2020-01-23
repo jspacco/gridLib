@@ -19,6 +19,7 @@ import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Arrays;
 
 import javax.imageio.ImageIO;
@@ -126,8 +127,13 @@ public class SimpleGrid extends JFrame
 
     private void loadImage(String imageSrc, int position) {
         try {
-            images[position] = ImageIO.read(new File("symbols/" + imageSrc).toURI().toURL());
-        } catch (IOException e) {
+            // Loading images from a resource within the jarfile.
+            // We have to put the symbol image files into the same package
+            // with the classfiles because of how resources are loaded.
+            // Or at least that's how I got it to work.
+            InputStream in = getClass().getClassLoader().getResourceAsStream("gridLib/" + imageSrc);
+            images[position] = ImageIO.read(in);
+        } catch (Exception e) {
             System.out.println("Image could not be read.");
             e.printStackTrace();
         }

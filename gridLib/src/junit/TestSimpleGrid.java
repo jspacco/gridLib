@@ -39,7 +39,8 @@ public class TestSimpleGrid
         //g.test12by24();
         //g.test2();
         SimpleGrid g=new SimpleGrid(10, 15);
-        g.setColor(-1, 0, Color.BLUE);
+        g.setLetterMode(true);
+        g.setColor(-16, -2, Color.BLUE);
     }
 
 }

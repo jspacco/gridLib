@@ -6,10 +6,15 @@
 	</target>
 	
 	<target name="jar" depends="dist">
+		<copy todir="bin/gridLib">
+			<fileset dir="symbols" includes="**"/>
+		</copy>
 		<jar destfile="${dist}/grids.jar" update="true">
 			<fileset dir="bin" includes="**/*class">
 			    <exclude name="**/junit/*"/>
 			</fileset>
+			<fileset dir="bin" includes="**/*png"/>
+			<!-- <fileset dir="" includes="symbols/**"/> -->
 		</jar>
 	</target>
 
