@@ -5,7 +5,6 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
-import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Point;
@@ -15,8 +14,11 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.awt.geom.AffineTransform;
+import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.IOException;
 import java.util.Arrays;
 
 import javax.imageio.ImageIO;
@@ -38,7 +40,8 @@ public class SimpleGrid extends JFrame
     private int numRows;
     private int numCols;
     private Color[][] cells;
-    protected boolean letterMode=false;
+    private BufferedImage[] images;
+    protected boolean symbolMode=false;
     protected boolean error=false;
     protected Color errorColor;
     protected int errorRow;
@@ -65,7 +68,7 @@ public class SimpleGrid extends JFrame
     }
     
     public void setLetterMode(boolean letterMode) {
-        this.letterMode = letterMode;
+        this.symbolMode = letterMode;
     }
     
     private void drawGrid(Graphics2D g) {
@@ -80,54 +83,29 @@ public class SimpleGrid extends JFrame
                     squareSize,
                     squareSize);
         }
-        
-        for(int r = 1; r < numRows+1; r++) {
-            for(int c = 1; c < numCols+1; c++) {
-                // first color the rectangle white
-                //g.setColor(Color.WHITE);
-                
-                
-                // Draw letters if desired
-                if (letterMode) {
-                    Font f = new Font("Comic Sans MS", Font.BOLD, squareSize);
-                    g.setFont(f);
-                    //System.out.printf("%d, %d\n", offset+c*squareSize, offset+(r+1)*squareSize);
-                    String s="";
-                    Color col = cells[r-1][c-1]; 
-                    if (col == Color.RED) {
-                        s = "R";
-                    } else if (col == Color.GREEN) {
-                        s = "G";
-                    } else if (col == Color.BLUE) {
-                        s = "B";
-                    } else if (col == Color.BLACK) {
-                        s = "K";
-                    } else if (col == Color.WHITE) {
-                        s = "";
-                    } else if  (col == Color.MAGENTA) {
-                        s = "M";
-                    } else if  (col == Color.YELLOW) {
-                        s = "Y";
-                    } else if  (col == Color.ORANGE) {
-                        s = "O";
-                    } else if  (col == Color.CYAN) {
-                        s = "C";
-                    } else if  (col == Color.PINK) {
-                        s = "P";
-                    }
-                    g.drawString(s, offset+c*squareSize, offset+(r+1)*squareSize);
-                } else {
-                    g.setColor(cells[r-1][c-1]);
-                    g.fillRect(c * squareSize + offset, 
-                            r * squareSize + offset, 
-                            squareSize, 
-                            squareSize);
-                    g.setColor(Color.BLACK);
+
+        for (int r = 1; r < numRows + 1; r++) {
+            for (int c = 1; c < numCols + 1; c++) {
+                g.setColor(cells[r - 1][c - 1]);
+                g.fillRect(c * squareSize + offset, r * squareSize + offset, squareSize, squareSize);
+
+                // Draw symbols if desired
+                if (symbolMode) {
+                    Color col = cells[r - 1][c - 1];
+                    BufferedImage img = getColorImage(col);
+
+                    double imgScale = 0.7;
+                    int imgMargin = (int) ((1.0 - imgScale) / 2.0 * squareSize);
+                    AffineTransform at = new AffineTransform();
+                    at.scale(squareSize * imgScale / img.getWidth(), squareSize * imgScale / img.getHeight());
+                    g.drawImage(img, new AffineTransformOp(at, AffineTransformOp.TYPE_BILINEAR),
+                            offset + c * squareSize + imgMargin, offset + r * squareSize + imgMargin);
                 }
-                
-                g.drawLine(offset+c*squareSize, 
-                        offset+r*squareSize, 
-                        offset+(c+1)*squareSize, 
+                g.setColor(Color.BLACK);
+
+                g.drawLine(offset+c*squareSize,
+                        offset+r*squareSize,
+                        offset+(c+1)*squareSize,
                         offset+r*squareSize);
                 g.drawLine(offset+c*squareSize, 
                         offset+r*squareSize, 
@@ -145,7 +123,42 @@ public class SimpleGrid extends JFrame
         }
         
     }
-    
+
+    private void loadImage(String imageSrc, int position) {
+        try {
+            images[position] = ImageIO.read(new File("symbols/" + imageSrc).toURI().toURL());
+        } catch (IOException e) {
+            System.out.println("Image could not be read.");
+            e.printStackTrace();
+        }
+    }
+
+    private BufferedImage getColorImage(Color col) {
+        BufferedImage img = null;
+        if (col == Color.RED) {
+            img = images[0];
+        } else if (col == Color.GREEN) {
+            img = images[1];
+        } else if (col == Color.BLUE) {
+            img = images[2];
+        } else if (col == Color.BLACK) {
+            img = images[3];
+        } else if (col == Color.WHITE) {
+            img = images[4];
+        } else if (col == Color.MAGENTA) {
+            img = images[5];
+        } else if (col == Color.YELLOW) {
+            img = images[6];
+        } else if (col == Color.ORANGE) {
+            img = images[7];
+        } else if (col == Color.CYAN) {
+            img = images[8];
+        } else if (col == Color.PINK) {
+            img = images[9];
+        }
+        return img;
+    }
+
     public SimpleGrid(int numRows, int numCols, boolean visible) {
         super("SimpleGrid");
         this.numRows=numRows;
@@ -156,6 +169,16 @@ public class SimpleGrid extends JFrame
                 cells[i][j]=Color.WHITE;
             }
         }
+
+        this.images=new BufferedImage[10];
+        for (int i = 1; i < 11; i++) {
+            if (i < 10) {
+                loadImage("symbol-0" + i + ".png", i - 1);
+            } else {
+                loadImage("symbol-" + i + ".png", i - 1);
+            }
+        }
+
         if (!visible) {
             // Don't create the canvas or make the GUI visible
             // This is useful for testing with JUnit
