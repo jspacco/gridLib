@@ -126,17 +126,16 @@ public class SimpleGrid extends JFrame
     }
 
     private void loadImage(String imageSrc, int position) {
-        try {
-            // Loading images from a resource within the jarfile.
-            // We have to put the symbol image files into the same package
-            // with the classfiles because of how resources are loaded.
-            // Or at least that's how I got it to work.
-            InputStream in = getClass().getClassLoader().getResourceAsStream("gridLib/" + imageSrc);
-            images[position] = ImageIO.read(in);
-        } catch (Exception e) {
-            System.out.println("Image could not be read.");
-            e.printStackTrace();
-        }
+    	// Loading images from a resource within the jarfile.
+    	// We have to put the symbol image files into the same package
+    	// with the classfiles because of how resources are loaded.
+    	// Or at least that's how I got it to work.
+    	InputStream in = getClass().getClassLoader().getResourceAsStream("gridLib/" + imageSrc);
+    	try {
+			images[position] = ImageIO.read(in);
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
     }
 
     private BufferedImage getColorImage(Color col) {
